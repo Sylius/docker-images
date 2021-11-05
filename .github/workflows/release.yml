@@ -17,7 +17,7 @@ jobs:
             matrix:
                 php: [ "7.4-fpm", "8.0-fpm" ]
         runs-on: ubuntu-20.04
-        name: "Build & publish sylius base php docker image"
+        name: "Build & publish sylius base php docker image - php:${{ matrix.php }}"
         steps:
             -   uses: actions/checkout@v2
             -   name: Set up Docker Buildx
@@ -36,8 +36,8 @@ jobs:
                     images: ${{ env.REGISTRY }}/${{ env.PHP_IMAGE_NAME }}
                     tags: |-
                         type=sha,enable=true,priority=100,prefix=${{ matrix.php }}-sha-,suffix=,format=short
-                        type=ref,event=branch,prefix=${{ matrix.php }}
-                        type=semver,prefix=${{ matrix.php }}
+                        type=ref,event=branch,prefix=${{ matrix.php }}-
+                        type=semver,prefix=${{ matrix.php }}-,pattern={{version}}
 
             -   name: Build and push Docker php image
                 uses: docker/build-push-action@v2
@@ -56,7 +56,7 @@ jobs:
             matrix:
                 node: [ "12-slim" ]
         runs-on: ubuntu-20.04
-        name: "Build & publish sylius base node docker image"
+        name: "Build & publish sylius base node docker image - node:${{ matrix.node }}"
         steps:
             -   uses: actions/checkout@v2
             -   name: Set up Docker Buildx
@@ -72,13 +72,13 @@ jobs:
                 id: meta
                 uses: docker/metadata-action@v3
                 with:
-                    images: ${{ env.REGISTRY }}/${{ env.PHP_IMAGE_NAME }}
+                    images: ${{ env.REGISTRY }}/${{ env.NODE_IMAGE_NAME }}
                     tags: |-
                         type=sha,enable=true,priority=100,prefix=${{ matrix.node }}-sha-,suffix=,format=short
-                        type=ref,event=branch,prefix=${{ matrix.node }}
-                        type=semver,prefix=${{ matrix.node }}
+                        type=ref,event=branch,prefix=${{ matrix.node }}-
+                        type=semver,prefix=${{ matrix.node }}-,pattern={{version}}
 
-            -   name: Build and push Docker php image
+            -   name: Build and push Docker node image
                 uses: docker/build-push-action@v2
                 with:
                     context: node/
