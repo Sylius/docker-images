@@ -37,7 +37,7 @@ It is repository with base images of node & php
                 uses: docker/build-push-action@v2
                 with:
                     context: php/
-                    push: false
+                    push: true
                     tags: ${{ steps.meta.outputs.tags }}
                     labels: ${{ steps.meta.outputs.labels }}
                     build-args: |
@@ -76,7 +76,7 @@ It is repository with base images of node & php
                     uses: docker/build-push-action@v2
                     with:
                         context: node/
-                        push: false
+                        push: true
                         tags: ${{ steps.meta.outputs.tags }}
                         labels: ${{ steps.meta.outputs.labels }}
                         build-args: |
