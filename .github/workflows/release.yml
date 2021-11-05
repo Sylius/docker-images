@@ -5,6 +5,7 @@ on:
     push:
         paths-ignore:
             - "docs/**"
+            - "*.md"
 
 env:
     REGISTRY: ghcr.io
