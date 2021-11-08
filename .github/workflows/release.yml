@@ -39,6 +39,8 @@ jobs:
                         type=sha,enable=true,priority=100,prefix=${{ matrix.php }}-sha-,suffix=,format=short
                         type=ref,event=branch,prefix=${{ matrix.php }}-
                         type=semver,prefix=${{ matrix.php }}-,pattern={{version}}
+                    flavor: |
+                        latest=false
 
             -   name: Build and push Docker php image
                 uses: docker/build-push-action@v2
@@ -78,6 +80,8 @@ jobs:
                         type=sha,enable=true,priority=100,prefix=${{ matrix.node }}-sha-,suffix=,format=short
                         type=ref,event=branch,prefix=${{ matrix.node }}-
                         type=semver,prefix=${{ matrix.node }}-,pattern={{version}}
+                    flavor: |
+                        latest=false
 
             -   name: Build and push Docker node image
                 uses: docker/build-push-action@v2
