@@ -14,3 +14,10 @@ RUN docker-php-ext-install pdo_mysql
 COPY php.ini $PHP_INI_DIR/php.ini
 ENV PHP_DATE_TIMEZONE="Europe/Warsaw"
 COPY --from=composer /usr/bin/composer /usr/bin/composer
+WORKDIR /symfony
+RUN apt install -y wget
+RUN wget https://get.symfony.com/cli/installer
+RUN chmod +x installer
+RUN bash installer
+RUN mv /root/.symfony/bin/symfony /usr/local/bin/symfony
+WORKDIR /
