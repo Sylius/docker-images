@@ -6,6 +6,7 @@ RUN apt install -y zlib1g-dev
 RUN apt install -y libpng-dev
 RUN apt install -y libicu-dev
 RUN apt install -y zip
+RUN apt install -y libmemcached-dev
 RUN docker-php-ext-install gd
 RUN docker-php-ext-install exif
 RUN docker-php-ext-install fileinfo
@@ -14,6 +15,8 @@ RUN docker-php-ext-install pdo_mysql
 RUN docker-php-ext-install opcache
 RUN pecl install apcu
 RUN docker-php-ext-enable apcu --ini-name 10-docker-php-ext-apcu.ini
+RUN pecl install memcached
+RUN docker-php-ext-enable memcached
 ENV PHP_DATE_TIMEZONE="Europe/Warsaw"
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 WORKDIR /symfony
