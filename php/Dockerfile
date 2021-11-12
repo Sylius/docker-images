@@ -11,7 +11,6 @@ RUN docker-php-ext-install exif
 RUN docker-php-ext-install fileinfo
 RUN docker-php-ext-install intl
 RUN docker-php-ext-install pdo_mysql
-COPY php.ini $PHP_INI_DIR/php.ini
 ENV PHP_DATE_TIMEZONE="Europe/Warsaw"
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 WORKDIR /symfony
