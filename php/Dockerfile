@@ -12,6 +12,8 @@ RUN docker-php-ext-install fileinfo
 RUN docker-php-ext-install intl
 RUN docker-php-ext-install pdo_mysql
 RUN docker-php-ext-install opcache
+RUN pecl install apcu
+RUN docker-php-ext-enable apcu --ini-name 10-docker-php-ext-apcu.ini
 ENV PHP_DATE_TIMEZONE="Europe/Warsaw"
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 WORKDIR /symfony
