@@ -20,6 +20,9 @@ RUN docker-php-ext-enable apcu --ini-name 10-docker-php-ext-apcu.ini
 RUN pecl install memcached
 RUN docker-php-ext-enable memcached
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+RUN apt install -y libmagickwand-dev --no-install-recommends
+RUN pecl install imagick
+RUN docker-php-ext-enable imagick
 ENV PHP_DATE_TIMEZONE="Europe/Warsaw"
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 WORKDIR /symfony
