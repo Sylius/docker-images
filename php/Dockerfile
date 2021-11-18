@@ -4,6 +4,8 @@ FROM php:${PHP_BASE_IMAGE_TAG} AS sylius_php
 RUN apt update
 RUN apt install -y zlib1g-dev
 RUN apt install -y libpng-dev
+RUN apt install -y libjpeg-dev
+RUN apt install -y libfreetype6-dev
 RUN apt install -y libicu-dev
 RUN apt install -y zip
 RUN apt install -y libmemcached-dev
@@ -17,6 +19,7 @@ RUN pecl install apcu
 RUN docker-php-ext-enable apcu --ini-name 10-docker-php-ext-apcu.ini
 RUN pecl install memcached
 RUN docker-php-ext-enable memcached
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 ENV PHP_DATE_TIMEZONE="Europe/Warsaw"
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 WORKDIR /symfony
