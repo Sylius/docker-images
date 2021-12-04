@@ -16,7 +16,7 @@ jobs:
     build-and-publish-php-image:
         strategy:
             matrix:
-                php: [ "7.4-fpm", "8.0-fpm" ]
+                php: [ "7.4-fpm", "8.0-fpm", "8.1.0-fpm" ]
         runs-on: ubuntu-20.04
         name: "Build & publish sylius base php docker image - php:${{ matrix.php }}"
         steps:
