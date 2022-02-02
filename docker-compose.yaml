@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+    nginx:
+        container_name: sylius-nginx
+        build:
+            context: docker/nginx
+            args:
+                - NGINX_VERSION=${NGINX_VERSION}
+        ports:
+              # custom server port to prevent port collision with other programs
+            - ${NGINX_PORT}:80
+        depends_on:
+              # use PHP-FPM to boost performance and be able to run PHP with nginx server
+            - php-fpm
+        volumes:
+            - ./public:/srv/www/sylius/public
+            - ./public/media:/srv/www/sylius/public/media
+
+    php-fpm:
+        container_name: sylius-php
+        build:
+            context: .
+            dockerfile: ./docker/php-fpm/dev/Dockerfile
+            args:
+                - APP_ENV=${APP_ENV}
+                - PHP_VERSION=${PHP_VERSION}
+                - PHP_USER_NAME=${PHP_USER_NAME}
+                - PHP_USER_GROUP=${PHP_USER_GROUP}
+                - UID=${UID}
+                - GID=${GID}
+                - PHP_DATE_TIMEZONE=${PHP_DATE_TIMEZONE}
+                - DB_HOST=${DB_HOST}
+        expose:
+            - 9000
+        depends_on:
+              # PHP scripts uses database
+            - mysql
+        volumes:
+            # set :cached to boost performance of reading data in container when developing source files in host (local) side
+            - ./:/srv/www/sylius:cached
+            - ./docker/php-fpm/dev/php.ini:/usr/local/etc/php/php.ini
+            - ./docker/php-fpm/cli/php-cli.ini:/usr/local/etc/php/php-cli.ini
+
+    mysql:
+        container_name: sylius-mysql
+        build:
+            context: docker/mysql
+            args:
+                - MYSQL_VERSION=${MYSQL_VERSION}
+        environment:
+            - MYSQL_USER=${DB_USER}
+            - MYSQL_PASSWORD=${DB_PASSWORD}
+            - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+        ports:
+            - ${DB_PORT}:3306
+        # uncomment line below if you have issues with connecting your DBMS IDE to database server due to password plugin
+        # command: ["--default-authentication-plugin=mysql_native_password"]
+        volumes:
+              # define SQL scripts that are executed when this service is created
+            - ./docker/mysql/init:/docker-entrypoint-initdb.d
+
+    nodejs:
+        container_name: sylius-nodejs
+        build:
+            context: docker/nodejs
+            args:
+                - NODEJS_VERSION=${NODEJS_VERSION}
+        ports:
+          - 9001:9001
+        volumes:
+            - ./:/srv/www/sylius:cached
+            - ./public:/srv/www/sylius/public:delegated
+        stdin_open: true
+        tty: true
+
+    mailhog:
+        container_name: sylius-mailhog
+        build:
+            context: docker/mailhog
+            args:
+                - MAILHOG_VERSION=${MAILHOG_VERSION}
+        ports:
+              # listen to HTTP server on port 8025, SMTP server starts on port 1025
+            - ${MAILHOG_HTTP_PORT}:8025
+        volumes:
+            - ./var/mailhog:/srv/www/sylius/var/mailhog
