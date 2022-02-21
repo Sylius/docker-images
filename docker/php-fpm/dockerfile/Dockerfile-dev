@@ -1,0 +1,72 @@
+ARG DOCKER_PHP_VERSION
+
+FROM php:$DOCKER_PHP_VERSION
+
+ARG DOCKER_APP_ENV
+ARG DOCKER_PHP_DATE_TIMEZONE
+ARG DOCKER_USER_NAME
+ARG DOCKER_USER_GROUP
+ARG DOCKER_UID
+ARG DOCKER_GID
+ARG DOCKER_DB_USER
+ARG DOCKER_DB_PASSWORD
+
+# set env variables for bash scripts and .ini files
+ENV DOCKER_APP_ENV=$DOCKER_APP_ENV
+ENV DOCKER_USER_NAME=$DOCKER_USER_NAME
+ENV DOCKER_PHP_DATE_TIMEZONE=$DOCKER_PHP_DATE_TIMEZONE
+ENV DOCKER_DB_USER=$DOCKER_DB_USER
+ENV DOCKER_DB_PASSWORD=$DOCKER_DB_PASSWORD
+
+WORKDIR /srv/www/sylius
+
+RUN groupadd -g ${DOCKER_GID} -o ${DOCKER_USER_GROUP}
+RUN useradd -m -u $DOCKER_UID -g $DOCKER_GID -o -s /bin/bash $DOCKER_USER_NAME
+
+COPY ./docker/php-fpm/ini/php-cli.ini /usr/local/etc/php/php-cli.ini
+COPY ./docker/php-fpm/ini/php-dev.ini /usr/local/etc/php/php.ini
+
+COPY --chown=$DOCKER_USER_NAME:$DOCKER_USER_GROUP ./config/preload.php ./config/preload.php
+
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+
+RUN apt update && apt install -y \
+    zip \
+    unzip \
+    git \
+    vim \
+    nano
+
+RUN install-php-extensions \
+    # apcu \
+    # memcached \
+    opcache \
+    gd \
+    exif \
+    fileinfo \
+    intl \
+    pdo_mysql \
+    zip \
+    imagick \
+    xdebug-3.1.2
+
+# # RUN docker-php-ext-enable apcu --ini-name 10-docker-php-ext-apcu.ini
+# # RUN docker-php-ext-enable memcached
+
+# RUN curl -sS https://get.symfony.com/cli/installer | bash
+# RUN mv /root/.symfony/bin/symfony /usr/local/bin/symfony
+
+# RUN chown -R $DOCKER_USER_NAME:$DOCKER_USER_GROUP ./
+
+# USER $DOCKER_USER_NAME:$DOCKER_USER_GROUP
+
+# COPY ./composer.* ./
+# COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+# ENV COMPOSER_MEMORY_LIMIT=-1
+
+# COPY --chown=$DOCKER_USER_NAME:$DOCKER_USER_GROUP ./php-fpm/scripts/sylius-entrypoint.sh /tmp/sylius-entrypoint.sh
+# RUN chmod u+x,o=r /tmp/sylius-entrypoint.sh
+
+# ENTRYPOINT ["/tmp/sylius-entrypoint.sh"]
+
+CMD php-fpm

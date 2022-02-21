@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+    nginx:
+        container_name: sylius-nginx
+        build:
+            context: ./nginx
+            args:
+                - DOCKER_NGINX_VERSION=${DOCKER_NGINX_VERSION}
+                - DOCKER_USER_NAME=${DOCKER_USER_NAME}
+                - DOCKER_USER_GROUP=${DOCKER_USER_GROUP}
+                - DOCKER_UID=${DOCKER_UID}
+                - DOCKER_GID=${DOCKER_GID}
+        ports:
+            - ${DOCKER_NGINX_PORT}:80
+        depends_on:
+            - php-fpm
+        volumes:
+            - ../public:/srv/www/sylius/public
+            - ../public/media:/srv/www/sylius/public/media
+
+    php-fpm:
+        container_name: sylius-php
+        build:
+            context: ../
+            dockerfile: ./docker/php-fpm/dockerfile/Dockerfile-dev
+            args:
+                - DOCKER_APP_ENV=${DOCKER_APP_ENV}
+                - DOCKER_PHP_VERSION=${DOCKER_PHP_VERSION}
+                - DOCKER_PHP_DATE_TIMEZONE=${DOCKER_PHP_DATE_TIMEZONE}
+                - DOCKER_USER_NAME=${DOCKER_USER_NAME}
+                - DOCKER_USER_GROUP=${DOCKER_USER_GROUP}
+                - DOCKER_UID=${DOCKER_UID}
+                - DOCKER_GID=${DOCKER_GID}
+                - DOCKER_DB_USER=${DOCKER_DB_USER}
+                - DOCKER_DB_PASSWORD=${DOCKER_DB_PASSWORD}
+        expose:
+            - 9000
+        depends_on:
+              # PHP scripts use database
+            - mysql
+        volumes:
+            - ../:/srv/www/sylius:cached
+            - ./php-fpm/ini/php-dev.ini:/usr/local/etc/php/php.ini
+            - ./php-fpm/ini/php-cli.ini:/usr/local/etc/php/php-cli.ini
+
+    mysql:
+        container_name: sylius-mysql
+        build:
+            context: ./mysql
+            args:
+                - DOCKER_MYSQL_VERSION=${DOCKER_MYSQL_VERSION}
+        environment:
+            - MYSQL_USER=${DOCKER_DB_USER}
+            - MYSQL_PASSWORD=${DOCKER_DB_PASSWORD}
+            - MYSQL_ROOT_PASSWORD=${DOCKER_DB_ROOT_PASSWORD}
+        ports:
+            - ${DOCKER_DB_PORT}:3306
+        # uncomment line below if you have issues with connecting your DBMS IDE to database server due to password plugin
+        # command: ["--default-authentication-plugin=mysql_native_password"]
+        volumes:
+              # define SQL scripts that are executed when this service is created
+            - ./mysql/init:/docker-entrypoint-initdb.d
+
+    nodejs:
+        container_name: sylius-nodejs
+        build:
+            context: ./nodejs
+            args:
+                - DOCKER_NODEJS_VERSION=${DOCKER_NODEJS_VERSION}
+        ports:
+          - 9001:9001
+        volumes:
+            - ../:/srv/www/sylius:cached
+            - ../public:/srv/www/sylius/public:delegated
+        stdin_open: true
+        tty: true
+
+    mailhog:
+        container_name: sylius-mailhog
+        build:
+            context: ./mailhog
+            args:
+                - DOCKER_MAILHOG_VERSION=${DOCKER_MAILHOG_VERSION}
+        ports:
+              # listen to HTTP server on port 8025, SMTP server starts on port 1025
+            - ${DOCKER_MAILHOG_HTTP_PORT}:8025
+        volumes:
+            - ../var/mailhog:/srv/www/sylius/var/mailhog
