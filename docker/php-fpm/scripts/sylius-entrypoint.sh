@@ -1,26 +1,33 @@
 #!/bin/sh
 
-# INSTALL_FOR_PROD=0
+#### MOVE THIS CODE TO THE docker.sh TO MAKE BUILD SYNCHRONOUS
 
-# if [ "$DOCKER_APP_ENV" = 'dev' ] || [ $INSTALL_FOR_PROD = 1 ]; then
-#     #composer install -v --no-interaction
+INSTALL_FOR_PROD=0
 
-#     IS_CONNECTED=$(php -f ./docker/php-fpm/check_connection.php)
+if [ "$DOCKER_APP_ENV" = 'dev' ] || [ $INSTALL_FOR_PROD = 1 ]; then
+    # composer install -v --no-interaction
 
-#     while [ $IS_CONNECTED -ne 1 ]
-#     do
-#         echo "Connecting to database server..."
+    check_connection () {
+        return $(php -f ./docker/php-fpm/scripts/check_connection.php)
+    }
 
-#         sleep 1
-#     done
+    check_connection
 
-#     echo "Connected!"
+    while [ $? -ne "1" ]
+    do
+        echo "Connecting to database server..."
 
-#     # TODO improve sylius:install for Docker
-#     # php bin/console sylius:install --no-interaction
+        check_connection
 
-#     # php bin/console doctrine:migrations:migrate --no-interaction
+        sleep 1
+    done
 
-# fi
+    echo "Connected!"
+
+    # TODO improve sylius:install for Docker
+    # php bin/console sylius:install --no-interaction
+
+    # php bin/console doctrine:migrations:migrate --no-interaction
+fi
 
 exec "$@"
