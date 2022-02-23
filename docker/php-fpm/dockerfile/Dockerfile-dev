@@ -50,23 +50,23 @@ RUN install-php-extensions \
     imagick \
     xdebug-3.1.2
 
-# # RUN docker-php-ext-enable apcu --ini-name 10-docker-php-ext-apcu.ini
-# # RUN docker-php-ext-enable memcached
+# RUN docker-php-ext-enable apcu --ini-name 10-docker-php-ext-apcu.ini
+# RUN docker-php-ext-enable memcached
 
-# RUN curl -sS https://get.symfony.com/cli/installer | bash
-# RUN mv /root/.symfony/bin/symfony /usr/local/bin/symfony
+RUN curl -sS https://get.symfony.com/cli/installer | bash
+RUN mv /root/.symfony/bin/symfony /usr/local/bin/symfony
 
-# RUN chown -R $DOCKER_USER_NAME:$DOCKER_USER_GROUP ./
+RUN chown -R $DOCKER_USER_NAME:$DOCKER_USER_GROUP ./
 
-# USER $DOCKER_USER_NAME:$DOCKER_USER_GROUP
+USER $DOCKER_USER_NAME:$DOCKER_USER_GROUP
 
-# COPY ./composer.* ./
-# COPY --from=composer /usr/bin/composer /usr/local/bin/composer
-# ENV COMPOSER_MEMORY_LIMIT=-1
+COPY ./composer.* ./
+COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+ENV COMPOSER_MEMORY_LIMIT=-1
 
-# COPY --chown=$DOCKER_USER_NAME:$DOCKER_USER_GROUP ./php-fpm/scripts/sylius-entrypoint.sh /tmp/sylius-entrypoint.sh
-# RUN chmod u+x,o=r /tmp/sylius-entrypoint.sh
+COPY --chown=$DOCKER_USER_NAME:$DOCKER_USER_GROUP ./docker/php-fpm/scripts/sylius-entrypoint.sh /tmp/sylius-entrypoint.sh
+RUN chmod u+x,o=r /tmp/sylius-entrypoint.sh
 
-# ENTRYPOINT ["/tmp/sylius-entrypoint.sh"]
+ENTRYPOINT ["/tmp/sylius-entrypoint.sh"]
 
 CMD php-fpm
