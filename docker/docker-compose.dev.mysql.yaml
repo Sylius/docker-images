@@ -25,15 +25,15 @@ services:
             context: ../
             dockerfile: ./docker/php-fpm/dockerfile/Dockerfile-dev
             args:
-                - DOCKER_APP_ENV=${DOCKER_APP_ENV}
+                - DOCKER_APP_ENV=${APP_ENV}
                 - DOCKER_PHP_VERSION=${DOCKER_PHP_VERSION}
                 - DOCKER_PHP_DATE_TIMEZONE=${DOCKER_PHP_DATE_TIMEZONE}
                 - DOCKER_USER_NAME=${DOCKER_USER_NAME}
                 - DOCKER_USER_GROUP=${DOCKER_USER_GROUP}
                 - DOCKER_UID=${DOCKER_UID}
                 - DOCKER_GID=${DOCKER_GID}
-                - DOCKER_DB_USER=${DOCKER_DB_USER}
-                - DOCKER_DB_PASSWORD=${DOCKER_DB_PASSWORD}
+                - DOCKER_DB_USER=${DB_USER}
+                - DOCKER_DB_PASSWORD=${DB_PASSWORD}
         expose:
             - 9000
         depends_on:
@@ -43,6 +43,8 @@ services:
             - ../:/srv/www/sylius:cached
             - ./php-fpm/ini/php-dev.ini:/usr/local/etc/php/php.ini
             - ./php-fpm/ini/php-cli.ini:/usr/local/etc/php/php-cli.ini
+        links:
+            - mysql
 
     mysql:
         container_name: sylius-mysql
@@ -51,11 +53,12 @@ services:
             args:
                 - DOCKER_MYSQL_VERSION=${DOCKER_MYSQL_VERSION}
         environment:
-            - MYSQL_USER=${DOCKER_DB_USER}
-            - MYSQL_PASSWORD=${DOCKER_DB_PASSWORD}
+            - MYSQL_USER=${DB_USER}
+            - MYSQL_PASSWORD=${DB_PASSWORD}
             - MYSQL_ROOT_PASSWORD=${DOCKER_DB_ROOT_PASSWORD}
+            - MYSQL_DATABASE=sylius_${APP_ENV}
         ports:
-            - ${DOCKER_DB_PORT}:3306
+            - ${DOCKER_DB_EXTERNAL_PORT}:3306
         # uncomment line below if you have issues with connecting your DBMS IDE to database server due to password plugin
         # command: ["--default-authentication-plugin=mysql_native_password"]
         volumes:
