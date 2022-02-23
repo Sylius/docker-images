@@ -64,9 +64,9 @@ COPY ./composer.* ./
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 ENV COMPOSER_MEMORY_LIMIT=-1
 
-COPY --chown=$DOCKER_USER_NAME:$DOCKER_USER_GROUP ./docker/php-fpm/scripts/sylius-entrypoint.sh /tmp/sylius-entrypoint.sh
-RUN chmod u+x,o=r /tmp/sylius-entrypoint.sh
+COPY --chown=$DOCKER_USER_NAME:$DOCKER_USER_GROUP ./docker/php-fpm/scripts/check_connection.php /tmp/check_connection.php
+RUN chmod u+x,o=r /tmp/check_connection.php
 
-ENTRYPOINT ["/tmp/sylius-entrypoint.sh"]
+# ENTRYPOINT ["/tmp/sylius-entrypoint.sh"]
 
 CMD php-fpm
