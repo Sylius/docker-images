@@ -23,14 +23,17 @@ containsElement $ACTION "${SERVICES[@]}"
 
 if [[ $? == 1 ]]; then
     $DOCKER_COMPOSE_COMMAND exec $ACTION bash
+elif [[ $ACTION == 'start' ]]; then
+    $DOCKER_COMPOSE_COMMAND start
+elif [[ $ACTION == 'stop' ]]; then
+    $DOCKER_COMPOSE_COMMAND stop
 elif [[ $ACTION == 'down' ]]; then
     $DOCKER_COMPOSE_COMMAND down
 elif [[ $ACTION == 'up' ]]; then
     $DOCKER_COMPOSE_COMMAND up -d --build
 
-    # Install composer dependencies, check database connection and prepare data in database:
     if [[ $ENVIRONMENT == 'dev' || $INSTALL_FOR_PROD == '1' ]]; then
-        # $DOCKER_COMPOSE_COMMAND exec php-fpm composer install -v --no-interaction
+        $DOCKER_COMPOSE_COMMAND exec php-fpm composer install -v --no-interaction
 
         check_connection () {
             local result=$($DOCKER_COMPOSE_COMMAND exec php-fpm php -f /tmp/check_connection.php $DB_USER $DB_PASSWORD $APP_ENV)
@@ -44,10 +47,7 @@ elif [[ $ACTION == 'up' ]]; then
 
         echo "Connected!"
 
-        # TODO improve sylius:install for Docker
-        # php bin/console sylius:install --no-interaction
-
-        # $DOCKER_COMPOSE_COMMAND exec php-fpm php bin/console doctrine:migrations:migrate --no-interaction
+        $DOCKER_COMPOSE_COMMAND exec php-fpm php bin/console sylius:install
     fi
 else
     echo "$ACTION is not supported"
