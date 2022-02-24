@@ -16,8 +16,10 @@ services:
         depends_on:
             - php-fpm
         volumes:
+            - ../:/srv/www/sylius
             - ../public:/srv/www/sylius/public
             - ../public/media:/srv/www/sylius/public/media
+            - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
 
     php-fpm:
         container_name: sylius-php
@@ -43,8 +45,6 @@ services:
             - ../:/srv/www/sylius:cached
             - ./php-fpm/ini/php-dev.ini:/usr/local/etc/php/php.ini
             - ./php-fpm/ini/php-cli.ini:/usr/local/etc/php/php-cli.ini
-        links:
-            - mysql
 
     mysql:
         container_name: sylius-mysql
