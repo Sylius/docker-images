@@ -7,8 +7,6 @@ ARG DOCKER_USER_GROUP
 ARG DOCKER_UID
 ARG DOCKER_GID
 
-COPY default.conf /etc/nginx/conf.d/
-
 WORKDIR /srv/www/sylius/
 
 RUN groupadd -g ${DOCKER_GID} -o ${DOCKER_USER_GROUP}
