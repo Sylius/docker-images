@@ -3,7 +3,7 @@ version: '3.4'
 services:
   php:
     build:
-      context: .
+      context: ..
       target: sylius_php
         # Quay does not work, should be replaced in future with f.e. ghcr.io
         # cache_from:
@@ -45,7 +45,7 @@ services:
 
   node:
     build:
-      context: .
+      context: ..
       target: sylius_node
       # Quay does not work, should be replaced in future with f.e. ghcr.io
       # cache_from:
@@ -67,7 +67,7 @@ services:
 
   nginx:
     build:
-      context: .
+      context: ..
       target: sylius_nginx
     image: nginx:latest
       # Quay does not work, should be replaced in future with f.e. ghcr.io
