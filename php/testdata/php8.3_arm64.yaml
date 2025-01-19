@@ -10,10 +10,10 @@ fileExistenceTests:
     path: '/usr/bin/composer'
     shouldExist: true
     permissions: '-rwxr-xr-x'
-  - name: 'PHP Entry point 775'
+  - name: 'PHP Entry point 755'
     path: '/usr/local/bin/docker-php-entrypoint'
     shouldExist: true
-    permissions: '-rwxrwxr-x'
+    permissions: '-rwxr-xr-x'
 commandTests:
   - name: arch
     command: [ "uname", "-m" ]
