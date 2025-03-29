@@ -1,18 +1,9 @@
 name: PHP Docker Image CI for Sylius
 
 on:
-    workflow_dispatch:
     push:
-        branches: [ frankenphp ]
-        paths:
-            - 'frankenphp/**'
-            - 'WORKSPACE'
-    schedule:
-        - cron: '0 20 * * 5'
-
-concurrency:
-    group: sylius_frankenphp_build
-    cancel-in-progress: false
+        branches:
+            - frankenphp
 
 jobs:
 
@@ -114,30 +105,6 @@ jobs:
                   cache-from: type=local,src=/tmp/.buildx-cache-new
                   cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new-arm64
                   outputs: type=docker,dest=./external/image-arm64.tar
-
-            - name: Mount Bazel cache
-              uses: actions/cache@v4
-              with:
-                  path: "~/.cache/bazel"
-                  key: "${{ runner.os }}-frankenphp-${{ matrix.frankenphp }}${{ matrix.php }}-${{ matrix.distro }}-bazel-cache-${{ vars.CACHE_VERSION }}-${{ steps.generate-uuid.outputs.uuid }}"
-                  restore-keys: "${{ runner.os }}-frankenphp-${{ matrix.frankenphp }}${{ matrix.php }}-${{ matrix.distro }}-bazel-cache-${{ vars.CACHE_VERSION }}-"
-
-            - name: Setup PHP for Bazel
-              run: |
-                  set -ex
-                  cat > frankenphp/frankenphp-version.bzl <<EOF
-                  FRANKENPHP_VERSION = "${{ matrix.frankenphp }}${{ matrix.php }}"
-                  EOF
-                  cat > frankenphp/frankenphp-arch.bzl <<EOF
-                  ARCHITECTURES = ["amd64", "arm64"]
-                  EOF
-
-            - name: Bazel build and test
-              run: |
-                  set -ex
-                  targets=$(bazel query 'attr(visibility, "//visibility:public", //frankenphp:*)' | sort)
-                  bazel build --curses=no ${targets}
-                  bazel test --curses=no --test_output=errors ${targets}
 
             - name: Push
               uses: docker/build-push-action@v5
