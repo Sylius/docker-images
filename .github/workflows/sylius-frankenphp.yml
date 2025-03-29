@@ -37,7 +37,7 @@ jobs:
               id: meta
               uses: docker/metadata-action@v5
               with:
-                  images: ghcr.io/${{ github.repository_owner }}/sylius-frankenphp-1.5-php8.2
+                  images: ghcr.io/${{ github.repository_owner }}/sylius-frankenphp-${{ matrix.frankenphp }}${{ matrix.php }}${{ matrix.distro }}
                   tags: |
                       type=raw,value=${{ matrix.frankenphp }}${{ matrix.php }}${{ matrix.distro }}
                   labels: |
