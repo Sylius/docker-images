@@ -1,7 +1,7 @@
 name: PHP Docker Image CI for Sylius
 
 on:
-    workflow_dispatch:
+    workflow_dispatch: ~
     push:
         branches: [ frankenphp ]
         paths:
@@ -26,7 +26,7 @@ jobs:
             fail-fast: false
             matrix:
                 frankenphp: [ "1.5-php" ]
-                php: [ "8.0", "8.1", "8.2", "8.3", "8.4" ]
+                php: [ "8.2", "8.3", "8.4" ]
                 distro: [ "", "-alpine" ]
 
         steps:
@@ -69,9 +69,9 @@ jobs:
             - name: Docker Login
               uses: docker/login-action@v3
               with:
-                  registry: ${{ secrets.DOCKER_REGISTRY }}
-                  username: ${{ secrets.DOCKER_REPOSITORY_LOGIN }}
-                  password: ${{ secrets.DOCKER_REPOSITORY_PASSWORD }}
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
                   logout: true
 
             - name: Build multiplatform
