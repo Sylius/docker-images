@@ -48,6 +48,10 @@ RUN set -eux; \
 		intl \
 		opcache \
 		zip \
+        exif \
+		gd \
+		intl \
+		pdo_mysql \
 	;
 
 RUN set -eux; \
