@@ -92,8 +92,8 @@ COPY --link conf.d/app.prod.ini $PHP_INI_DIR/conf.d/
 COPY --link conf.d/app-cli.ini $PHP_INI_DIR/conf.d/
 COPY --link worker.Caddyfile /etc/caddy/worker.Caddyfile
 
-# prevent the reinstallation of vendors at every changes in the source code
-COPY --link composer.* symfony.* ./
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
 RUN set -eux; \
 	composer install --no-cache --prefer-dist --no-dev --no-autoloader --no-scripts --no-progress
 
