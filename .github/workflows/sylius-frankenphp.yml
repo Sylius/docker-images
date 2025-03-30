@@ -54,7 +54,7 @@ jobs:
               uses: docker/setup-buildx-action@v3
 
             - name: Cache Docker layers
-              uses: actions/cache@v4
+              uses: actions/cache@v4.0.0
               with:
                   path: /tmp/.buildx-cache
                   key: "${{ runner.os }}-frankenphp-${{ matrix.frankenphp }}${{ matrix.php }}-${{ matrix.distro }}-buildx-cache-${{ vars.CACHE_VERSION }}-${{ steps.generate-uuid.outputs.uuid }}"
@@ -63,21 +63,22 @@ jobs:
                   restore-keys: "${{ runner.os }}-frankenphp-${{ matrix.frankenphp }}${{ matrix.php }}-${{ matrix.distro }}-buildx-cache-${{ vars.CACHE_VERSION }}-"
 
             - name: Docker Login
-              uses: docker/login-action@v3
+              uses: docker/login-action@v3.0.0
               with:
-                  registry: ghcr.io
-                  username: ${{ github.actor }}
-                  password: ${{ secrets.GITHUB_TOKEN }}
+                  registry: ${{ secrets.DOCKER_REGISTRY }}
+                  username: ${{ secrets.DOCKER_REPOSITORY_LOGIN }}
+                  password: ${{ secrets.DOCKER_REPOSITORY_PASSWORD }}
                   logout: true
 
-            - name: Build multiplatform
-              uses: docker/build-push-action@v5
+            - name: Build and push
+              uses: docker/build-push-action@v5.0.0
               with:
                   file: ./frankenphp/Dockerfile
                   context: ./frankenphp
-                  build-args: "FRANKENPHP_VERSION=${{ matrix.frankenphp }}${{ matrix.php }}-${{ matrix.distro }}"
+                  build-args: |
+                      "FRANKENPHP_VERSION=${{ matrix.frankenphp }}${{ matrix.php }}-${{ matrix.distro }}"
                   platforms: linux/amd64,linux/arm64
-                  push: false
+                  push: ${{ github.ref == 'refs/heads/frankenphp' || github.event_name == 'workflow_dispatch' }}
                   pull: true
                   tags: ${{ steps.meta.outputs.tags }}
                   cache-from: type=local,src=/tmp/.buildx-cache
@@ -134,20 +135,6 @@ jobs:
                   targets=$(bazel query 'attr(visibility, "//visibility:public", //frankenphp:*)' | sort)
                   bazel build --curses=no ${targets}
                   bazel test --curses=no --test_output=errors ${targets}
-
-            - name: Push
-              uses: docker/build-push-action@v5
-              with:
-                  file: ./frankenphp/Dockerfile
-                  context: ./frankenphp
-                  build-args: "FRANKENPHP_VERSION=${{ matrix.frankenphp }}${{ matrix.php }}-${{ matrix.distro }}"
-                  platforms: linux/amd64,linux/arm64
-                  push: ${{ github.ref == 'refs/heads/frankenphp' || github.ref == 'refs/heads/main' || github.event_name == 'release' }}
-                  pull: false
-                  tags: ${{ steps.meta.outputs.tags }}
-                  labels: ${{ steps.meta.outputs.labels }}
-                  cache-from: type=local,src=/tmp/.buildx-cache-new
-                  cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
 
             - name: Move cache
               run: |
