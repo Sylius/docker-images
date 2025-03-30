@@ -1,5 +1,5 @@
 #syntax=docker/dockerfile:1
-ARG FRANKENPHP_VERSION=1.5-php8.2
+ARG FRANKENPHP_VERSION=1.5-php8.2-alpine
 
 # Adapted from https://github.com/dunglas/symfony-docker
 
@@ -43,21 +43,17 @@ fi
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-RUN set -eux; \
-	install-php-extensions \
-		@composer \
-		apcu \
-		intl \
-		opcache \
-		zip \
-        exif \
-		gd \
-		intl \
-		pdo_mysql \
-	;
-
-RUN set -eux; \
-	install-php-extensions pdo_pgsql pdo_mysql pdo_sqlite
+# persistent / runtime deps
+# hadolint ignore=DL3008
+RUN install-php-extensions \
+    @composer \
+    apcu \
+    exif \
+    gd \
+    intl \
+    pdo_mysql \
+    opcache \
+    zip
 
 COPY --link conf.d/app.ini $PHP_INI_DIR/conf.d/
 COPY --link --chmod=755 docker-entrypoint.sh /usr/local/bin/docker-entrypoint
@@ -100,4 +96,3 @@ RUN cp "$PHP_INI_DIR/php.ini.production.backup" "$PHP_INI_DIR/php.ini"
 COPY --link conf.d/app.prod.ini $PHP_INI_DIR/conf.d/
 COPY --link conf.d/app-cli.ini $PHP_INI_DIR/conf.d/
 COPY --link worker.Caddyfile /etc/caddy/worker.Caddyfile
-
