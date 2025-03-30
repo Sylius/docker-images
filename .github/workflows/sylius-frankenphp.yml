@@ -1,9 +1,14 @@
 name: PHP Docker Image CI for Sylius
 
 on:
-  push:
-    branches: 
-      - frankenphp
+    workflow_dispatch:
+    push:
+        branches: [ frankenphp ]
+        paths:
+            - 'frankenphp/**'
+            - 'WORKSPACE'
+    schedule:
+        - cron: '0 20 * * 5'
 
 jobs:
 
