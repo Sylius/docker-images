@@ -27,4 +27,4 @@ RUN USER=sylius && \
 # Fix permissions during named volume creation
 RUN mkdir -p /srv/sylius/public/media && chmod 777 -R /srv/sylius
 
-USER sylius:sylius 
+USER sylius:sylius
