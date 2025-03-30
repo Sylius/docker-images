@@ -26,6 +26,7 @@ RUN if [ "$(awk -F= '/^NAME/{print $2}' /etc/os-release)" = '"Ubuntu"' ]; then \
         file \
         gettext \
         git \
+        libnss3-tools \
     && rm -rf /var/lib/apt/lists/*; \
 fi
 RUN if [ "$(awk -F= '/^NAME/{print $2}' /etc/os-release)" = '"Alpine Linux"' ]; then \
@@ -35,6 +36,7 @@ RUN if [ "$(awk -F= '/^NAME/{print $2}' /etc/os-release)" = '"Alpine Linux"' ]; 
         file \
         gettext \
         git \
+        nss-tools \
     && apk del .build-deps; \
 fi
 
