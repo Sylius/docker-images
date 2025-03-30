@@ -217,13 +217,6 @@ jobs:
                   password: ${{ secrets.GITHUB_TOKEN }}
                   logout: true
 
-            - name: Prepare variable names for Docker build
-              id: docker-build-variable-names
-              run: |
-                  PHP_VERSION="${{ matrix.php }}"
-                  PHP_XDEBUG_VERSION_VARIABLE=XDEBUG_VERSION_PHP_${PHP_VERSION//./_}
-                  echo "XDEBUG_VERSION=$(jq -r --arg PHP_XDEBUG_VERSION_VARIABLE "$PHP_XDEBUG_VERSION_VARIABLE" '.[$PHP_XDEBUG_VERSION_VARIABLE]' <<< '${{ toJSON(vars) }}')" >> $GITHUB_ENV
-
             - name: Build and push
               uses: docker/build-push-action@v5
               with:
@@ -232,7 +225,6 @@ jobs:
                   build-args: |
                       "IMAGE_NAME=${{ vars.DOCKER_FRANKENPHP_REPOSITORY_NAME }}"
                       "IMAGE_TAG=${{ matrix.frankenphp }}${{ matrix.php }}-${{ matrix.distro }}"
-                      "XDEBUG_VERSION=${{ env.XDEBUG_VERSION }}"
                   platforms: linux/amd64,linux/arm64
                   push: ${{ github.ref == 'refs/heads/frankenphp' || github.ref == 'refs/heads/main' || github.event_name == 'release' }}
                   pull: true
