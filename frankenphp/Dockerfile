@@ -19,7 +19,7 @@ WORKDIR /srv/sylius
 
 # persistent / runtime deps
 # hadolint ignore=DL3008
-RUN if [ "$(awk -F= '/^NAME/{print $2}' /etc/os-release)" = '"Ubuntu"' ]; then \
+RUN if grep -q "Ubuntu" /etc/os-release; then \
     apt-get update \
     && apt-get install --no-install-recommends -y \
         acl \
@@ -28,8 +28,7 @@ RUN if [ "$(awk -F= '/^NAME/{print $2}' /etc/os-release)" = '"Ubuntu"' ]; then \
         git \
         libnss3-tools \
     && rm -rf /var/lib/apt/lists/*; \
-fi
-RUN if [ "$(awk -F= '/^NAME/{print $2}' /etc/os-release)" = '"Alpine Linux"' ]; then \
+elif grep -q "Alpine Linux" /etc/os-release; then \
     apk add --no-cache --virtual .build-deps $PHPIZE_DEPS linux-headers \
     && apk add --no-cache \
         acl \
@@ -37,6 +36,7 @@ RUN if [ "$(awk -F= '/^NAME/{print $2}' /etc/os-release)" = '"Alpine Linux"' ]; 
         gettext \
         git \
         nss-tools \
+        curl \
     && apk del .build-deps; \
 fi
 
