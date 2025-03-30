@@ -66,24 +66,6 @@ ENTRYPOINT ["docker-entrypoint"]
 HEALTHCHECK --start-period=60s CMD curl -f http://localhost:2019/metrics || exit 1
 CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile" ]
 
-ARG USER=appuser
-
-# First prepare the PHP configurations before switching user
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini.production.backup"
-RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini.development.backup"
-
-RUN \
-	# Use "adduser -D ${USER}" for alpine based distros
-	useradd ${USER}; \
-	# Add additional capability to bind to port 80 and 443
-	setcap CAP_NET_BIND_SERVICE=+eip /usr/local/bin/frankenphp; \
-	# Give write access to /data/caddy and /config/caddy
-	chown -R ${USER}:${USER} /caddy-data/caddy && chown -R ${USER}:${USER} /caddy-config/caddy; \
-	# Give write access to PHP_INI_DIR
-	chown -R ${USER}:${USER} $PHP_INI_DIR
-
-USER ${USER}
-
 # Dev FrankenPHP image
 FROM frankenphp_base AS frankenphp_dev
 
