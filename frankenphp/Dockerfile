@@ -22,35 +22,15 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 
 # persistent / runtime deps
 # hadolint ignore=DL3008
-RUN set -eux; \
-      apk add --no-cache --virtual .build-deps \
-        $PHPIZE_DEPS \
-        linux-headers \
-		freetype-dev \
-		icu-dev \
-		libjpeg-turbo-dev \
-		libpng-dev \
-		libtool \
-		libwebp-dev \
-		libzip-dev \
-		zlib-dev \
-    && apk add --no-cache --virtual  .persistent-deps \
-        acl \
-        file \
-        git \
-        gettext \
-		gnu-libiconv \
-        nss-tools \
-    && install-php-extensions \
-       		@composer \
-       		apcu \
-            exif \
-            gd \
-       		intl \
-       		pdo_mysql \
-       		opcache \
-       		zip \
-    && apk del --no-network .build-deps
+RUN install-php-extensions \
+    @composer \
+    apcu \
+    exif \
+    gd \
+    intl \
+    pdo_mysql \
+    opcache \
+    zip
 
 COPY --link conf.d/app.ini $PHP_INI_DIR/conf.d/
 COPY --link --chmod=755 docker-entrypoint.sh /usr/local/bin/docker-entrypoint
