@@ -3,12 +3,8 @@ name: PHP Docker Image CI for Sylius
 on:
     workflow_dispatch: ~
     push:
-        branches: [ frankenphp ]
-        paths:
-            - 'frankenphp/**'
-            - 'WORKSPACE'
-    schedule:
-        - cron: '0 20 * * 5'
+        branches:
+            - frankenphp
 
 jobs:
 
@@ -63,11 +59,11 @@ jobs:
                   restore-keys: "${{ runner.os }}-frankenphp-${{ matrix.frankenphp }}${{ matrix.php }}-${{ matrix.distro }}-buildx-cache-${{ vars.CACHE_VERSION }}-"
 
             - name: Docker Login
-              uses: docker/login-action@v3.0.0
+              uses: docker/login-action@v3
               with:
-                  registry: ${{ secrets.DOCKER_REGISTRY }}
-                  username: ${{ secrets.DOCKER_REPOSITORY_LOGIN }}
-                  password: ${{ secrets.DOCKER_REPOSITORY_PASSWORD }}
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
                   logout: true
 
             - name: Build and push
