@@ -32,7 +32,6 @@ RUN install-php-extensions \
 
 COPY --link conf.d/app.ini $PHP_INI_DIR/conf.d/
 COPY --link conf.d/app-cli.ini $PHP_INI_DIR/conf.d/
-COPY --link Caddyfile /etc/caddy/Caddyfile
 
 HEALTHCHECK --start-period=60s CMD curl -f http://localhost:2019/metrics || exit 1
 CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile" ]
