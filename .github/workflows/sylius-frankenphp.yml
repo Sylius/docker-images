@@ -157,3 +157,85 @@ jobs:
               run: |
                   rm -rf /tmp/.buildx-cache
                   mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+    build-xdebug:
+        needs: build
+
+        name: "Sylius FrankenPHP with Xdebug - ${{ matrix.frankenphp }}${{ matrix.php }}-${{ matrix.distro }}"
+
+        runs-on: ubuntu-latest
+
+        strategy:
+            fail-fast: false
+            matrix:
+                frankenphp: [ "1.5-php" ]
+                php: [ "8.2", "8.3", "8.4" ]
+                distro: [ "alpine" ]
+
+        steps:
+
+            -   uses: actions/checkout@v4
+
+            -   name: Generate UUID
+                id: generate-uuid
+                run: |
+                    UUID=$(cat /proc/sys/kernel/random/uuid)
+                    echo "UUID=${UUID}" >> $GITHUB_OUTPUT
+
+            -   name: Set up QEMU
+                id: qemu
+                uses: docker/setup-qemu-action@v3
+
+            -   name: Available platforms
+                run: echo ${{ steps.qemu.outputs.platforms }}
+
+            - name: Docker meta
+              id: meta
+              uses: docker/metadata-action@v5
+              with:
+                  images: ghcr.io/${{ github.repository_owner }}/sylius-frankenphp-xdebug-${{ matrix.frankenphp }}${{ matrix.php }}-${{ matrix.distro }}
+                  tags: |
+                      type=raw,value=${{ matrix.frankenphp }}${{ matrix.php }}-xdebug-${{ matrix.distro }}
+                  labels: |
+                      org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+                      org.opencontainers.image.description=Sylius FrankenPHP with XDebug ${{ matrix.frankenphp }}${{ matrix.php }} Docker image
+                      org.opencontainers.image.licenses=MIT
+
+            -   name: Set up Docker Buildx
+                uses: docker/setup-buildx-action@v3
+
+            -   name: Cache Docker layers
+                uses: actions/cache@v4
+                with:
+                    path: /tmp/.buildx-cache
+                    key: "${{ runner.os }}-frankenphp-xdebug-${{ matrix.frankenphp }}${{ matrix.php }}-${{ matrix.distro }}-buildx-cache-${{ vars.CACHE_VERSION }}-${{ steps.generate-uuid.outputs.uuid }}"
+                    # https://github.com/actions/cache/issues/109#issuecomment-558771281
+                    # https://github.community/t/always-save-new-cache-for-incremental-builds/172791
+                    restore-keys: "${{ runner.os }}-php-xdebug-${{ matrix.frankenphp }}${{ matrix.php }}-${{ matrix.distro }}-buildx-cache-${{ vars.CACHE_VERSION }}-"
+
+            - name: Docker Login
+              uses: docker/login-action@v3
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+                  logout: true
+
+            -   name: Build and push
+                uses: docker/build-push-action@v5.0.0
+                with:
+                    file: ./frankenphp/Dockerfile
+                    context: ./frankenphp
+                    build-args: "FRANKENPHP_VERSION=${{ matrix.frankenphp }}${{ matrix.php }}-${{ matrix.distro }}"
+                    platforms: linux/amd64,linux/arm64
+                    push: ${{ github.ref == 'refs/heads/frankenphp' || github.ref == 'refs/heads/main' || github.event_name == 'release' }}
+                    pull: true
+                    tags: ${{ steps.meta.outputs.tags }}
+                    cache-from: type=local,src=/tmp/.buildx-cache
+                    cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
+                    target: "frankenphp_dev"
+
+            -   name: Move cache
+                run: |
+                    rm -rf /tmp/.buildx-cache
+                    mv /tmp/.buildx-cache-new /tmp/.buildx-cache
