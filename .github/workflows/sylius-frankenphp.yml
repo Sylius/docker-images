@@ -15,9 +15,7 @@ concurrency:
     cancel-in-progress: false
 
 jobs:
-
     build:
-
         name: "Sylius FrankenPHP - ${{ matrix.frankenphp }}${{ matrix.php }} ${{ matrix.distro }}"
 
         runs-on: ubuntu-latest
