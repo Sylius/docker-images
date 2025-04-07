@@ -3,7 +3,7 @@ name: PHP Docker Image CI for Sylius
 on:
     workflow_dispatch: ~
     push:
-        branches: [ frankenphp ]
+        branches: [ main, frankenphp ]
         paths:
             - 'frankenphp/**'
             - 'WORKSPACE'
@@ -193,7 +193,7 @@ jobs:
               id: meta
               uses: docker/metadata-action@v5
               with:
-                  images: ghcr.io/${{ github.repository_owner }}/sylius-frankenphp-xdebug-${{ matrix.frankenphp }}${{ matrix.php }}-${{ matrix.distro }}
+                  images: ghcr.io/${{ github.repository_owner }}/sylius-frankenphp-${{ matrix.frankenphp }}${{ matrix.php }}-xdebug-${{ matrix.distro }}
                   tags: |
                       type=raw,value=${{ matrix.frankenphp }}${{ matrix.php }}-xdebug-${{ matrix.distro }}
                   labels: |
@@ -208,10 +208,10 @@ jobs:
                 uses: actions/cache@v4
                 with:
                     path: /tmp/.buildx-cache
-                    key: "${{ runner.os }}-frankenphp-xdebug-${{ matrix.frankenphp }}${{ matrix.php }}-${{ matrix.distro }}-buildx-cache-${{ vars.CACHE_VERSION }}-${{ steps.generate-uuid.outputs.uuid }}"
+                    key: "${{ runner.os }}-frankenphp-${{ matrix.frankenphp }}${{ matrix.php }}-xdebug-${{ matrix.distro }}-buildx-cache-${{ vars.CACHE_VERSION }}-${{ steps.generate-uuid.outputs.uuid }}"
                     # https://github.com/actions/cache/issues/109#issuecomment-558771281
                     # https://github.community/t/always-save-new-cache-for-incremental-builds/172791
-                    restore-keys: "${{ runner.os }}-php-xdebug-${{ matrix.frankenphp }}${{ matrix.php }}-${{ matrix.distro }}-buildx-cache-${{ vars.CACHE_VERSION }}-"
+                    restore-keys: "${{ runner.os }}-frankenphp-${{ matrix.frankenphp }}${{ matrix.php }}-xdebug-${{ matrix.distro }}-buildx-cache-${{ vars.CACHE_VERSION }}-"
 
             - name: Docker Login
               uses: docker/login-action@v3
