@@ -1,4 +1,4 @@
-name: PHP Docker Image CI for Sylius
+name: FrankenPHP Docker Image CI for Sylius
 
 on:
     workflow_dispatch: ~
@@ -46,7 +46,7 @@ jobs:
               id: meta
               uses: docker/metadata-action@v5
               with:
-                  images: ghcr.io/${{ github.repository_owner }}/sylius-frankenphp-${{ matrix.frankenphp }}${{ matrix.php }}-${{ matrix.distro }}
+                  images: ${{ vars.DOCKER_FRANKENPHP_REPOSITORY_NAME }}
                   tags: |
                       type=raw,value=${{ matrix.frankenphp }}${{ matrix.php }}-${{ matrix.distro }}
                   labels: |
@@ -69,9 +69,9 @@ jobs:
             - name: Docker Login
               uses: docker/login-action@v3
               with:
-                  registry: ghcr.io
-                  username: ${{ github.actor }}
-                  password: ${{ secrets.GITHUB_TOKEN }}
+                  registry: ${{ secrets.DOCKER_REGISTRY }}
+                  username: ${{ secrets.DOCKER_REPOSITORY_LOGIN }}
+                  password: ${{ secrets.DOCKER_REPOSITORY_PASSWORD }}
                   logout: true
 
             - name: Build multiplatform
@@ -193,7 +193,7 @@ jobs:
               id: meta
               uses: docker/metadata-action@v5
               with:
-                  images: ghcr.io/${{ github.repository_owner }}/sylius-frankenphp-${{ matrix.frankenphp }}${{ matrix.php }}-xdebug-${{ matrix.distro }}
+                  images: ${{ vars.DOCKER_FRANKENPHP_REPOSITORY_NAME }}
                   tags: |
                       type=raw,value=${{ matrix.frankenphp }}${{ matrix.php }}-xdebug-${{ matrix.distro }}
                   labels: |
@@ -216,9 +216,9 @@ jobs:
             - name: Docker Login
               uses: docker/login-action@v3
               with:
-                  registry: ghcr.io
-                  username: ${{ github.actor }}
-                  password: ${{ secrets.GITHUB_TOKEN }}
+                  registry: ${{ secrets.DOCKER_REGISTRY }}
+                  username: ${{ secrets.DOCKER_REPOSITORY_LOGIN }}
+                  password: ${{ secrets.DOCKER_REPOSITORY_PASSWORD }}
                   logout: true
 
             -   name: Build and push
