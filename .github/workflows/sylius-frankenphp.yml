@@ -28,7 +28,6 @@ jobs:
                 distro: [ "alpine" ]
 
         steps:
-
             - uses: actions/checkout@v4
 
             - name: Generate UUID
