@@ -29,6 +29,7 @@ RUN set -eux; \
 		libtool \
 		libwebp-dev \
 		libzip-dev \
+		linux-headers \
 		zlib-dev \
 	; \
 	\
