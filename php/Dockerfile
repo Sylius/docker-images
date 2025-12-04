@@ -47,6 +47,7 @@ RUN set -eux; \
 		gd \
 		intl \
 		pdo_mysql \
+		sockets \
 		zip \
 	; \
 	pecl install \
