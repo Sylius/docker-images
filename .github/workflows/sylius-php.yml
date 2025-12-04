@@ -57,7 +57,7 @@ jobs:
         uses: docker/setup-buildx-action@v3.0.0
 
       - name: Cache Docker layers
-        uses: actions/cache@v4.0.0
+        uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
           key: "${{ runner.os }}-php-${{ matrix.php }}-${{ matrix.distro }}-buildx-cache-${{ vars.CACHE_VERSION }}-${{ steps.generate-uuid.outputs.uuid }}"
@@ -115,7 +115,7 @@ jobs:
           outputs: type=docker,dest=./external/image-arm64.tar
 
       - name: Mount Bazel cache
-        uses: actions/cache@v4.0.0
+        uses: actions/cache@v4
         with:
           path: "~/.cache/bazel"
           key: "${{ runner.os }}-php-${{ matrix.php }}-${{ matrix.distro }}-bazel-cache-${{ vars.CACHE_VERSION }}-${{ steps.generate-uuid.outputs.uuid }}"
@@ -196,7 +196,7 @@ jobs:
         uses: docker/setup-buildx-action@v3.0.0
 
       - name: Cache Docker layers
-        uses: actions/cache@v4.0.0
+        uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
           key: "${{ runner.os }}-php-xdebug-${{ matrix.php }}-${{ matrix.distro }}-buildx-cache-${{ vars.CACHE_VERSION }}-${{ steps.generate-uuid.outputs.uuid }}"
@@ -279,7 +279,7 @@ jobs:
         uses: docker/setup-buildx-action@v3.0.0
 
       - name: Cache Docker layers
-        uses: actions/cache@v4.0.0
+        uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
           key: "${{ runner.os }}-php-fixuid-${{ matrix.php }}-${{ matrix.version }}-buildx-cache-${{ vars.CACHE_VERSION }}-${{ steps.generate-uuid.outputs.uuid }}"
