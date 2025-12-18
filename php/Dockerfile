@@ -1,5 +1,5 @@
 ARG PHP_SHORT_VERSION=7.4
-ARG APCU_VERSION=5.1.24
+ARG APCU_VERSION=5.1.28
 
 FROM php:${PHP_SHORT_VERSION}-fpm-alpine
 
@@ -55,9 +55,13 @@ RUN set -eux; \
 		apcu-${APCU_VERSION} \
 	; \
 	pecl clear-cache; \
+    # Opcache is built into core of PHP binary from version 8.5
+    if [[ 1 -eq "$(echo "$PHP_SHORT_VERSION < 8.5" | bc)" ]] ; \
+        then \
+          docker-php-ext-enable opcache; \
+    fi; \
 	docker-php-ext-enable \
 		apcu \
-		opcache \
 	; \
 	\
 	runDeps="$( \
