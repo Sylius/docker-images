@@ -114,26 +114,22 @@ jobs:
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new-arm64
           outputs: type=docker,dest=./external/image-arm64.tar
 
-      - name: Mount Bazel cache
-        uses: actions/cache@v4
-        with:
-          path: "~/.cache/bazel"
-          key: "${{ runner.os }}-php-${{ matrix.php }}-${{ matrix.distro }}-bazel-cache-${{ vars.CACHE_VERSION }}-${{ steps.generate-uuid.outputs.uuid }}"
-          restore-keys: "${{ runner.os }}-php-${{ matrix.php }}-${{ matrix.distro }}-bazel-cache-${{ vars.CACHE_VERSION }}-"
+      - name: Install container-structure-test
+        run: |
+          sudo curl -fsSL -o /usr/local/bin/container-structure-test https://github.com/GoogleContainerTools/container-structure-test/releases/download/v1.22.1/container-structure-test-linux-amd64
+          sudo chmod +x /usr/local/bin/container-structure-test
 
-      - name: Setup PHP for Bazel
+      - name: Structure tests (amd64)
         run: |
           set -ex
-          cat > php/php-version.bzl <<EOF
-          PHP_VERSION = "${{ matrix.php }}"
-          EOF
+          docker load -i ./external/image-amd64.tar
+          container-structure-test test --image ${{ steps.meta.outputs.tags }} --config php/testdata/php${{ matrix.php }}_amd64.yaml
 
-      - name: Bazel build and test
+      - name: Structure tests (arm64)
         run: |
           set -ex
-          targets=$(bazel query 'attr(visibility, "//visibility:public", //php:*)' | sort)
-          bazel build --curses=no ${targets}
-          bazel test --curses=no --test_output=errors ${targets}
+          docker load -i ./external/image-arm64.tar
+          container-structure-test test --image ${{ steps.meta.outputs.tags }} --config php/testdata/php${{ matrix.php }}_arm64.yaml
 
       - name: Push
         uses: docker/build-push-action@v5.0.0
