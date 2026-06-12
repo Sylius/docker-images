@@ -123,13 +123,13 @@ jobs:
         run: |
           set -ex
           docker load -i ./external/image-amd64.tar
-          container-structure-test test --image ${{ steps.meta.outputs.tags }} --config php/testdata/php${{ matrix.php }}_amd64.yaml
+          container-structure-test test --platform linux/amd64 --image ${{ steps.meta.outputs.tags }} --config php/testdata/php${{ matrix.php }}_amd64.yaml
 
       - name: Structure tests (arm64)
         run: |
           set -ex
           docker load -i ./external/image-arm64.tar
-          container-structure-test test --image ${{ steps.meta.outputs.tags }} --config php/testdata/php${{ matrix.php }}_arm64.yaml
+          container-structure-test test --platform linux/arm64 --image ${{ steps.meta.outputs.tags }} --config php/testdata/php${{ matrix.php }}_arm64.yaml
 
       - name: Push
         uses: docker/build-push-action@v5.0.0
