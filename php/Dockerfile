@@ -51,10 +51,12 @@ RUN set -eux; \
 		sockets \
 		zip \
 	; \
-	pecl install \
-		apcu-${APCU_VERSION} \
-	; \
-	pecl clear-cache; \
+	# pecl.php.net is being decommissioned, install APCu from source
+	wget -O /tmp/apcu.tar.gz "https://github.com/krakjoe/apcu/archive/refs/tags/v${APCU_VERSION}.tar.gz"; \
+	mkdir -p /usr/src/php/ext/apcu; \
+	tar -xzf /tmp/apcu.tar.gz -C /usr/src/php/ext/apcu --strip-components=1; \
+	rm /tmp/apcu.tar.gz; \
+	docker-php-ext-install -j$(nproc) apcu; \
     # Opcache is built into core of PHP binary from version 8.5
     if [[ 1 -eq "$(echo "$PHP_SHORT_VERSION < 8.5" | bc)" ]] ; \
         then \
