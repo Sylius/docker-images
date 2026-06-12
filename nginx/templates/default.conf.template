@@ -6,6 +6,37 @@ server {
         try_files $uri /index.php$is_args$args;
     }
 
+    # Serve cached image or ask Sylius to resolve cache if needed
+    location ~ ^/media/cache/(?!resolve/).+ {
+        try_files $uri @resolve_image_cache;
+    }
+
+    # Image cache was missing, generate it calling resolve/ Sylius route
+    location @resolve_image_cache {
+        internal;
+        rewrite ^/media/cache/(.*)$ /media/cache/resolve/$1 break;
+        proxy_pass http://127.0.0.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # Intercept redirect
+        proxy_intercept_errors on;
+        error_page 302 = @handle_image_redirect;
+    }
+
+    # Serve the image to client, not the redirect
+    location @handle_image_redirect {
+        internal;
+        rewrite ^.*$ $upstream_http_location break;
+        proxy_pass http://127.0.0.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
     location ~ ^/index\.php(/|$) {
         fastcgi_pass ${FASTCGI_PASS};
         fastcgi_split_path_info ^(.+\.php)(/.*)$;
