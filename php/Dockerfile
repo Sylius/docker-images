@@ -30,6 +30,7 @@ RUN set -eux; \
 		libwebp-dev \
 		libzip-dev \
 		linux-headers \
+		oniguruma-dev \
 		zlib-dev \
 	; \
 	\
@@ -51,6 +52,10 @@ RUN set -eux; \
 		sockets \
 		zip \
 	; \
+    if [[ 1 -eq "$(echo "$PHP_SHORT_VERSION >= 8.6" | bc)" ]] ; \
+        then \
+          docker-php-ext-install -j$(nproc) mbstring; \
+    fi; \
 	# pecl.php.net is being decommissioned, install APCu from source
 	wget -O /tmp/apcu.tar.gz "https://github.com/krakjoe/apcu/archive/refs/tags/v${APCU_VERSION}.tar.gz"; \
 	mkdir -p /usr/src/php/ext/apcu; \
